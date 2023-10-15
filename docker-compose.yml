@@ -1,64 +1,63 @@
 version: '3.8'
 
 services:
-  mongodb-dev:
+  mongodb:
     image: mongo
     restart: always
     volumes:
-      - db-data-dev:/data/db
+      - db-data:/data/db
     ports:
-      - 27018:27017
+      - ${MONGO_PORT}:27017
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: asdf
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASS}
 
-  mongo-express-dev:
+  mongo-express:
     image: mongo-express
     restart: always
     depends_on:
-      - mongodb-dev
+      - mongodb
     ports:
-      - 8082:8081
+      - ${MONGO_EXPRESS_PORT}:8081
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongodb-dev
+      ME_CONFIG_MONGODB_SERVER: mongodb
       ME_CONFIG_MONGODB_ENABLE_ADMIN: true
-      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
-      ME_CONFIG_MONGODB_ADMINPASSWORD: asdf
-      ME_CONFIG_BASICAUTH_USERNAME: admin
-      ME_CONFIG_BASICAUTH_PASSWORD: admin123
-      VIRTUAL_PORT: 8081
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ROOT_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASS}
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_ROOT_USER}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_ROOT_USER}
 
   # redis1:
   #   container_name: redis1
   #   image: redis
-  #   command: redis-server --requirepass asdf
+  #   command: redis-server --requirepass ${MONGO_ROOT_PASS}
   #   ports:
   #   - '6379:6379'
 
-  app-dev:
+  app:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: sh -c "npm install && npm run start:dev"
+    command: sh -c "npm install && npm run start:${ENV}"
     restart: always
     ports:
-      - 8091:8080
+      - ${APP_PORT}:8080
     working_dir: /app
     depends_on:
-      - mongodb-dev
+      - mongodb
     environment:
-      - VIRTUAL_HOST=dev.silver-tercel.com
-      - LETSENCRYPT_HOST=dev.silver-tercel.com
+      - VIRTUAL_HOST=${ENV}.silver-tercel.com
+      - LETSENCRYPT_HOST=${ENV}.silver-tercel.com
       - LETSENCRYPT_EMAIL=steedude@gmail.com
       - VIRTUAL_PORT=8080
 
-  nginx-proxy-dev:
+  nginx-proxy:
     image: nginxproxy/nginx-proxy
     labels:
       - 'com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy'
     ports:
-      - 81:80
-      - 444:443
+      - ${HTTP_PORT}:80
+      - ${HTTPS_PORT}:443
     restart: always
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
@@ -66,7 +65,7 @@ services:
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
 
-  nginx-proxy-acme-dev:
+  nginx-proxy-acme:
     image: nginxproxy/acme-companion
     restart: always
     volumes:
@@ -80,7 +79,7 @@ services:
       - DEFAULT_EMAIL=steedude@gmail.com
 
 volumes:
-  db-data-dev:
+  db-data:
   vhost:
   html:
   certs:
