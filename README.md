@@ -6,5 +6,6 @@ docker-compose -f docker-compose-dev.yml up
 
 docker-compose -f docker-compose-prod.yml up
 
-docker compose -p mongo-app-dev --env-file dev.env -f docker-compose.yml up -d
-docker compose -p mongo-app-prod --env-file prod.env -f docker-compose.yml up -d
+docker compose -f docker-compose-nginx.yml up -d
+docker-compose -p mongo-app-dev --env-file dev.env -f docker-compose.yml up -d
+docker-compose -p mongo-app-prod --env-file prod.env -f docker-compose.yml up -d

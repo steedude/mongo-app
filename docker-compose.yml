@@ -49,38 +49,7 @@ services:
       - VIRTUAL_HOST=${ENV}.silver-tercel.com
       - LETSENCRYPT_HOST=${ENV}.silver-tercel.com
       - LETSENCRYPT_EMAIL=steedude@gmail.com
-      - VIRTUAL_PORT=8080
-
-  nginx-proxy:
-    image: nginxproxy/nginx-proxy
-    # labels:
-    #   - 'com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy'
-    ports:
-      - ${HTTP_PORT}:80
-      - ${HTTPS_PORT}:443
-    restart: always
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - certs:/etc/nginx/certs
-      - vhost:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-
-  nginx-proxy-acme:
-    image: nginxproxy/acme-companion
-    restart: always
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - acme:/etc/acme.sh
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - certs:/etc/nginx/certs
-      - vhost:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-    environment:
-      - DEFAULT_EMAIL=steedude@gmail.com
+      - VIRTUAL_PORT=${APP_PORT}
 
 volumes:
   db-data:
-  vhost:
-  html:
-  certs:
-  acme:
