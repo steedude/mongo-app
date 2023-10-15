@@ -14,3 +14,5 @@ docker-compose --env-file dev.env -f docker-compose.yml up -d
 
 docker-compose -f olds/docker-compose-dev.yml up -d
 docker-compose -f olds/docker-compose-prod.yml up -d
+
+docker rm -f $(docker ps -aq)
