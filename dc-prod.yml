@@ -1,26 +1,26 @@
 version: '3.8'
 
 services:
-  mongodb:
+  mongodb-prod:
     image: mongo
     restart: always
     volumes:
-      - db-data:/data/db
+      - db-data-prod:/data/db
     ports:
       - 27027:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: asdf
 
-  mongo-express:
+  mongo-express-prod:
     image: mongo-express
     restart: always
     depends_on:
-      - mongodb
+      - mongodb-prod
     ports:
-      - 8081:8081
+      - 8082:8081
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_SERVER: mongodb-prod
       ME_CONFIG_MONGODB_ENABLE_ADMIN: true
       ME_CONFIG_MONGODB_ADMINUSERNAME: admin
       ME_CONFIG_MONGODB_ADMINPASSWORD: asdf
@@ -34,7 +34,7 @@ services:
   #   ports:
   #   - '6379:6379'
 
-  app:
+  app-prod:
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -44,43 +44,12 @@ services:
       - 8090:8080
     working_dir: /app
     depends_on:
-      - mongodb
+      - mongodb-prod
     environment:
       - VIRTUAL_HOST=prod.silver-tercel.com
+      - VIRTUAL_PORT=8080
       - LETSENCRYPT_HOST=prod.silver-tercel.com
       - LETSENCRYPT_EMAIL=steedude@gmail.com
-      - VIRTUAL_PORT=8080
-
-  nginx-proxy:
-    image: nginxproxy/nginx-proxy
-    labels:
-      - 'com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy'
-    ports:
-      - 80:80
-      - 443:443
-    restart: always
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - certs:/etc/nginx/certs
-      - vhost:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-
-  nginx-proxy-acme:
-    image: nginxproxy/acme-companion
-    restart: always
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - acme:/etc/acme.sh
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - certs:/etc/nginx/certs
-      - vhost:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-    environment:
-      - DEFAULT_EMAIL=steedude@gmail.com
 
 volumes:
-  db-data:
-  vhost:
-  html:
-  certs:
-  acme:
+  db-data-prod:
