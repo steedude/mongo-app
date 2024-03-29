@@ -17,9 +17,13 @@ npm run dev
 ## 伺服器上部署
 
 伺服器放在aws，透過github自動部署，分別部署在
-[https://prod.silver-tercel.com/](https://prod.silver-tercel.com/)
-[https://dev.silver-tercel.com/](https://dev.silver-tercel.com/)
+[prod.silver-tercel](https://prod.silver-tercel.com/)
+[dev.silver-tercel](https://dev.silver-tercel.com/)
 
 ## 部署的邏輯
 
 nginx透過`/var/run/docker.sock:/var/run/docker.sock:ro`可以去跟其他容器溝通，直接讀取其他容器中environment，取得port和host等資訊完成部署。
+
+## 注意事項
+
+因為aws是用免費的方案，儲存空間不夠，可能會導致nginx-proxy-acme無法更新SSL憑證，需要定期清理一下儲存空間
